@@ -46,7 +46,7 @@ async fn nft_image(path: web::Path<(Address, String)>) -> Result<impl Responder>
     let (nftee_address, token_id) = path.into_inner();
     let token_id = U256::from_dec_str(&token_id).map_err(error::ErrorBadRequest)?;
 
-    // call `tokenURI(uint256 tokenId)` to get image data
+    // call `tokenURI(uint256 tokenId)` to get metadata URL
     let sig = "0xc87b56dd".parse::<Bytes>().unwrap();
     let args: Bytes = encode(&[Token::Uint(token_id)]).into();
     let calldata = [sig, args].concat();
@@ -80,7 +80,6 @@ async fn nft_image(path: web::Path<(Address, String)>) -> Result<impl Responder>
         nft_content
     );
 
-    // Ok(web::Bytes::from(image_data))
     Ok(HttpResponse::Ok()
         .content_type(ContentType::xml())
         .body(image_data))
@@ -92,8 +91,6 @@ async fn nft_image(path: web::Path<(Address, String)>) -> Result<impl Responder>
 async fn nft_data(path: web::Path<(Address, String)>) -> Result<impl Responder> {
     let (nftee_address, token_id) = path.into_inner();
     let token_id = U256::from_dec_str(&token_id).map_err(error::ErrorBadRequest)?;
-
-    // return metadata in JSON format
     let metadata = ERC721Metadata {
         name: token_id.to_string(),
         description: "NFT rendered from ASCII data.".to_string(),
